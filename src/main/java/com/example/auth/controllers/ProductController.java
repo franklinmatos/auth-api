@@ -5,9 +5,12 @@ import com.example.auth.domain.product.ProductRequestDTO;
 import com.example.auth.domain.product.ProductResponseDTO;
 import com.example.auth.repositories.ProductRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -15,19 +18,22 @@ import java.util.List;
 @RequestMapping("product")
 public class ProductController {
 
-    @Autowired
-    ProductRepository repository;
+    private final ProductRepository repository;
+
+    public ProductController(ProductRepository repository) {
+        this.repository = repository;
+    }
 
     @PostMapping
-    public ResponseEntity postProduct(@RequestBody @Valid ProductRequestDTO body){
+    public ResponseEntity<Product> postProduct(@RequestBody @Valid ProductRequestDTO body){
         Product newProduct = new Product(body);
 
         this.repository.save(newProduct);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(this.repository.save(newProduct));
     }
 
     @GetMapping
-    public ResponseEntity getAllProducts(){
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts(){
         List<ProductResponseDTO> productList = this.repository.findAll().stream().map(ProductResponseDTO::new).toList();
 
         return ResponseEntity.ok(productList);
