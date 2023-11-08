@@ -1,4 +1,6 @@
 package com.example.auth.domain.user;
 
-public record RegisterDTO(String login, String password, UserRole role) {
+import jakarta.validation.constraints.Email;
+
+public record RegisterDTO(String login, String password, UserRole role, @Email String email, Boolean active) {
 }
