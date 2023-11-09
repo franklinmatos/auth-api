@@ -6,6 +6,7 @@ import com.example.auth.domain.user.RegisterDTO;
 import com.example.auth.domain.user.User;
 import com.example.auth.infra.security.TokenService;
 import com.example.auth.repositories.UserRepository;
+import com.example.auth.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,33 +20,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("auth")
 public class AuthenticationController {
-    private final AuthenticationManager authenticationManager;
-    private final UserRepository repository;
-    private final TokenService tokenService;
 
-    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository repository, TokenService tokenService) {
-        this.authenticationManager = authenticationManager;
-        this.repository = repository;
-        this.tokenService = tokenService;
+    private final UserService userService;
+
+    public AuthenticationController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO data){
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
-        var auth = this.authenticationManager.authenticate(usernamePassword);
-
-        var token = tokenService.generateToken((User) auth.getPrincipal());
-
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+        return userService.login(data);
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid RegisterDTO data){
-        if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
-
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(data.login(), encryptedPassword, data.role(), data.email(), data.active());
-        this.repository.save(newUser);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<User> register(@RequestBody @Valid RegisterDTO data){
+        return userService.register(data);
     }
 }

@@ -1,6 +1,10 @@
 package com.example.auth.domain.user;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,12 +32,11 @@ public class User implements UserDetails {
     private Boolean active;
     private UserRole role;
 
-    public User(String login, String password, UserRole role, String email, Boolean active){
+    public User(String login, String password, UserRole role, String email){
         this.login = login;
         this.password = password;
         this.role = role;
         this.email = email;
-        this.active = active;
     }
 
     @Override
