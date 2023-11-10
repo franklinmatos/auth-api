@@ -6,6 +6,7 @@ import com.ms.auth.domain.user.RegisterDTO;
 import com.ms.auth.domain.user.User;
 import com.ms.auth.infra.security.TokenService;
 import com.ms.auth.repositories.UserRepository;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +26,7 @@ public class UserService {
         this.tokenService = tokenService;
     }
 
-    public ResponseEntity<LoginResponseDTO> login(AuthenticationDTO data){
+    public ResponseEntity<LoginResponseDTO> login(@NotBlank AuthenticationDTO data){
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
@@ -40,5 +41,11 @@ public class UserService {
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
         User newUser = new User(data.login(), encryptedPassword, data.role(), data.email());
         return ResponseEntity.ok(this.repository.save(newUser));
+    }
+
+    public ResponseEntity<LoginResponseDTO> validateToken(String tokenValue){
+
+        var token = tokenService.validateToken(tokenValue);
+        return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 }

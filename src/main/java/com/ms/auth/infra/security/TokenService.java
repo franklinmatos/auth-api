@@ -19,10 +19,11 @@ public class TokenService {
 
     public String generateToken(User user){
         try{
+            var tokenUser = getHashtoken(user);
             Algorithm algorithm = Algorithm.HMAC256(secret);
             String token = JWT.create()
                     .withIssuer("auth-api")
-                    .withSubject(user.getLogin())
+                    .withSubject(tokenUser)
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
             return token;
@@ -46,5 +47,9 @@ public class TokenService {
 
     private Instant genExpirationDate(){
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+    }
+
+    private String getHashtoken(User user){
+        return String.format("%s-%s-%s-%s",secret, user.getId(),user.getLogin(),user.getEmail() );
     }
 }
